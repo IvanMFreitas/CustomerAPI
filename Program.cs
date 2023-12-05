@@ -37,15 +37,16 @@ public class Customer
 /// </summary>
 public class RandomCustomer
 {
-    public List<string> FirstNameOpt = new List<string>
-    {
-        "Leia", "Sadie", "Jose", "Sara", "Frank", "Dewey", "Tomas", "Joel", "Lukas", "Carlos"
-    };
+    private static readonly Random Random = new Random();
 
-    public List<string> LastNameOpt = new List<string>
-    {
-        "Liberty", "Ray", "Harrison", "Ronan", "Drew", "Powell", "Larsen", "Chan", "Anderson", "Lane"
-    };
+    private static readonly string[] FirstNames = { "John", "Alice", "Bob", "Eve", "Charlie", "David" };
+    private static readonly string[] LastNames = { "Smith", "Johnson", "Doe", "Williams", "Brown", "Jones" };
+
+    public string FirstNameOpt => FirstNames[Random.Next(FirstNames.Length)];
+    public string LastNameOpt => LastNames[Random.Next(LastNames.Length)];
+    public int Age => Random.Next(10, 91);
+
+    public int Id;
 }
 
 /// <summary>
@@ -179,8 +180,3 @@ public class CustomerController : ControllerBase
     }
 
 }
-
-
-
-
-
