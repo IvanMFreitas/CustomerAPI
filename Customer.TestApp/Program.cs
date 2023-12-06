@@ -4,7 +4,7 @@ using System;
 
 class Program
 {
-    static async Task Main(string[] args)
+    static async Task Main()
     {
         var apiUrl = System.Configuration.ConfigurationManager.AppSettings["APIUrl"];
         var httpClient = new HttpClient();
@@ -15,6 +15,8 @@ class Program
         var getTask = SimulateGetRequest(apiUrl, httpClient);    
 
         await Task.WhenAll(postTask, getTask);
+
+        Console.ReadLine();
     }
 
     static async Task SimulatePostRequests(string apiUrl, HttpClient httpClient)
