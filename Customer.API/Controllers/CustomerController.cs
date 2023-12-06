@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using Newtonsoft.Json;
 
 namespace Customer.API.Controllers
 {
@@ -8,17 +9,43 @@ namespace Customer.API.Controllers
     /// </summary>
     public class CustomerController : ControllerBase
     {
+        /// <summary>
+        /// Memory cache
+        /// </summary>
         private readonly IMemoryCache _memoryCache;
+        
+        /// <summary>
+        /// Key to hold info into memoryCache
+        /// </summary>
         private const string CustomerCacheKey = "Customers";
+        
+        /// <summary>
+        /// Backup file path
+        /// </summary>
+        private const string FilePath = "customerData.json";
+
+        /// <summary>
+        /// Instance of a LifeTime monitor of the API
+        /// </summary>
+        private readonly IHostApplicationLifetime _appLifetime;
 
         /// <summary>
         /// Constructor Initialized  - For Debug purpose
         /// </summary>
         /// <param name="memoryCache"></param>
-        public CustomerController(IMemoryCache memoryCache)
+        public CustomerController(IMemoryCache memoryCache, IHostApplicationLifetime appLifetime)
         {
             //Receives the MemoryCache as param
             _memoryCache = memoryCache;
+
+            // Load data from file when the API starts
+            LoadDataFromFile();
+
+            //Receives the instance
+            _appLifetime = appLifetime ?? throw new ArgumentNullException(nameof(appLifetime));
+
+            // Registering an application-stopping event
+            _appLifetime.ApplicationStopping.Register(OnShutdown);
         }
 
         /// <summary>
@@ -127,6 +154,38 @@ namespace Customer.API.Controllers
 
             //Returns OK
             return Ok("Customers added successfully.");
+        }
+
+        /// <summary>
+        /// Method to Save data into a file, even after the API shutdown
+        /// </summary>
+        private void SaveDataToFile()
+        {
+            var existingCustomers = _memoryCache.Get<List<Models.Customer>>(CustomerCacheKey) ?? new List<Models.Customer>();
+
+            var serializedData = JsonConvert.SerializeObject(existingCustomers);
+            System.IO.File.WriteAllText(FilePath, serializedData);
+        }
+
+        /// <summary>
+        /// Method that loads all Data from a file (previnting losing data)
+        /// </summary>
+        private void LoadDataFromFile()
+        {
+            if (System.IO.File.Exists(FilePath))
+            {
+                var serializedData = System.IO.File.ReadAllText(FilePath);
+                var existingCustomers = JsonConvert.DeserializeObject<List<Models.Customer>>(serializedData);
+                _memoryCache.Set(CustomerCacheKey, existingCustomers);
+            }
+        }
+
+        /// <summary>
+        /// Save data to file when the API shuts down 
+        /// </summary>
+        private void OnShutdown()
+        {
+            SaveDataToFile();
         }
 
     }
