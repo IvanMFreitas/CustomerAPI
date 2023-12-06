@@ -5,8 +5,8 @@ This is the second part of the test, developing an API that creates and retrieve
 
 The solution has 2(two) projects: a WebAPI and a Console Application to test the API with parallel processes.
 
-- [WebAPI](#titles)
-- [ConsoleApplication](#paragraph)
+- [WebAPI](#WebAPI)
+- [ConsoleApplication](#ConsoleApplication)
 
 # WebAPI
 
